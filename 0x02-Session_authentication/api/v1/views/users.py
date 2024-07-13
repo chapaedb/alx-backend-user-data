@@ -25,15 +25,17 @@ def view_one_user(user_id: str = None) -> str:
       - User object JSON represented
       - 404 if the User ID doesn't exist
     """
-    
-    if user_id == 'me':
-        if request.current_user is None:
-            abort(404)
     if user_id is None:
         abort(404)
-
+    if user_id == "me":
+        if request.current_user is None:
+            abort(404)
+        user = request.current_user
+        return jsonify(user.to_json())
     user = User.get(user_id)
     if user is None:
+        abort(404)
+    if request.current_user is None:
         abort(404)
     return jsonify(user.to_json())
 
@@ -42,7 +44,7 @@ def view_one_user(user_id: str = None) -> str:
 def delete_user(user_id: str = None) -> str:
     """ DELETE /api/v1/users/:id
     Path parameter:
-    - User ID
+      - User ID
     Return:
       - empty JSON is the User has been correctly deleted
       - 404 if the User ID doesn't exist
